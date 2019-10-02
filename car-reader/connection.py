@@ -8,7 +8,7 @@ def post(dest, data):
 
     # Create new request with json data
     try:
-        request = requests.post(options.carLinkUrl + dest, json={"data": data})
+        request = requests.post(options.carLinkUrl + dest, json=data)
 
         # Check status code
         if request.status_code == 200:

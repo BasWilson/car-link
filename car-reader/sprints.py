@@ -1,5 +1,7 @@
 import obd
-import options
+import drive
+from options import mockMode
+from options import maxSprintTime
 from datetime import datetime
 
 # The timestamp of when the car is doing 0kph
@@ -27,7 +29,7 @@ def measureSprint(connection):
     # Keeps track of speed
     speed = 0
     
-    if options.mockMode == False:
+    if mockMode == False:
         # Run the query
         response = connection.query(cmd)
 
@@ -42,10 +44,10 @@ def measureSprint(connection):
 
         # If no times added to current time, it means we can add the zeroTime to it.
         if len(currentTime) == 0:
-            currentTime[zeroTime] = 0
+            currentTime[str(zeroTime * 1000).replace('.', '')] = 0
 
         # Add the time for the current speed
-        currentTime[datetime.timestamp(datetime.now())] = speed
+        currentTime[str(datetime.timestamp(datetime.now()) * 1000).replace('.', '')] = speed
 
     # if speed is 0, save the timestamp.
     if speed == 0:
@@ -56,8 +58,8 @@ def measureSprint(connection):
     if speed == 100 and zeroTime != 0:
         # determine differnce in time between the two timestamps
         nullToHundred = datetime.timestamp(datetime.now()) - zeroTime
-
-        if nullToHundred < options.maxSprintTime:
+        print(nullToHundred)
+        if nullToHundred < maxSprintTime:
             # save the current time to times list if bigger than set option
             times.append(currentTime.copy())
 
@@ -66,10 +68,9 @@ def measureSprint(connection):
         zeroTime = 0
 
 
-        if options.mockMode:
+        if mockMode:
             mockspeed = 0
 
-    for time in times:
-        print(time)
+        drive.endDrive()
 
     return nullToHundred
