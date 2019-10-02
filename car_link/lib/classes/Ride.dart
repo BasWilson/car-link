@@ -1,33 +1,41 @@
-import 'package:car_link/classes/Sprint.dart';
+import 'dart:convert';
+
+import 'package:car_link/views/Drives.dart';
 
 class Ride {
-  final String rideId;
-  final double maxSpeed, averageSpeed, fuelUsed, kmStart, kmEnd;
-  final Sprint sprint;
-  final DateTime timestamp;
+  final String id, linkedCar;
+  final int driveEnd, driveStart;
+  final String sprints;
+  bool isExpanded;
 
   Ride({
-    this.rideId,
-    this.timestamp,
-    this.maxSpeed,
-    this.averageSpeed,
-    this.fuelUsed,
-    this.kmEnd,
-    this.kmStart,
-    this.sprint
+    this.id,
+    this.linkedCar,
+    this.driveEnd,
+    this.driveStart,
+    this.sprints,
+    this.isExpanded
   });
 
   factory Ride.fromJson(Map<String, dynamic> json) {
     return Ride(
-      rideId: json['rideId'],
-      timestamp: json['timestamp'],
-      maxSpeed: json['maxSpeed'],
-      averageSpeed: json['averageSpeed'],
-      fuelUsed: json['fuelUsed'],
-      kmEnd: json['kmEnd'],
-      kmStart: json['kmStart'],
-      sprint: json['sprint'],
+      id: json['id'],
+      linkedCar: json['linkedCar'],
+      driveEnd: json['driveEnd'],
+      driveStart: json['driveStart'],
+      sprints: json['sprints'].toString(),
+      isExpanded: false
     );
+  }
+
+    static Resource<List<Ride>> get all {
+    return Resource(
+        url: "http://uber2.nl/api/getDrives",
+        parse: (response) {
+          final result = json.decode(response.body);
+          Iterable list = result;
+          return list.map((model) => Ride.fromJson(model)).toList();
+        });
   }
 
 }

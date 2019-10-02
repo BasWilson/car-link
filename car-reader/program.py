@@ -28,7 +28,8 @@ elif mockMode == True:
     print("Running in MOCK MODE")
     running = True
 
-drive.startDrive()
+if running:
+    drive.startDrive()
 
 while running == True:
     time.sleep( .8 )

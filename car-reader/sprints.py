@@ -2,7 +2,9 @@ import obd
 import drive
 from options import mockMode
 from options import maxSprintTime
+from options import speedMeasureSteps
 from datetime import datetime
+from utils import secondsToMs
 
 # The timestamp of when the car is doing 0kph
 zeroTime = 0
@@ -15,6 +17,8 @@ mockspeed = 0
 times = []
 currentTime = {}
 
+previousSpeed = 0
+
 # Measures 0 to 100 sprints made with the car
 def measureSprint(connection):
 
@@ -22,6 +26,7 @@ def measureSprint(connection):
     global zeroTime
     global times
     global currentTime
+    global previousSpeed
 
     # time it took 0 - 100
     nullToHundred = 0
@@ -35,19 +40,24 @@ def measureSprint(connection):
 
         # turn the query response into a float
         speed = float(response.value)  
+        print(speed)
+
     else:
         speed = mockspeed
         mockspeed += 10
 
     # Add the current speed to the dictionary with as key the current timestmap
     if speed > 0:
-
+        print(speed)
         # If no times added to current time, it means we can add the zeroTime to it.
         if len(currentTime) == 0:
-            currentTime[str(zeroTime * 1000).replace('.', '')] = 0
+            currentTime[secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))] = 0
 
-        # Add the time for the current speed
-        currentTime[str(datetime.timestamp(datetime.now()) * 1000).replace('.', '')] = speed
+        speedDif = speed - previousSpeed
+        if speedDif > speedMeasureSteps:
+            # Add the time for the current speed if we have made enough speed differnce
+            currentTime[secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))] = speed
+            previousSpeed = speed
 
     # if speed is 0, save the timestamp.
     if speed == 0:
@@ -55,7 +65,7 @@ def measureSprint(connection):
 
 
     # When speed is 100 or more and the zerotime has been set, save the timestamp
-    if speed == 100 and zeroTime != 0:
+    if speed >= 100 and zeroTime != 0:
         # determine differnce in time between the two timestamps
         nullToHundred = datetime.timestamp(datetime.now()) - zeroTime
         print(nullToHundred)
@@ -66,7 +76,7 @@ def measureSprint(connection):
         # Reset currenttime and zerotime
         currentTime = {}
         zeroTime = 0
-
+        previousSpeed = 0
 
         if mockMode:
             mockspeed = 0

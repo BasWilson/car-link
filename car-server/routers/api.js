@@ -48,4 +48,15 @@ router.post('/saveDrive', function (req, res) {
     });
 });
 
+router.post('/getDrives', function (req, res) {
+    console.log(req.body)
+    api.getDrives(req.body).then((result) => {
+        console.log('Retrieved drives:', result);
+        if (!result.error)
+            res.send(result);
+        else
+            res.sendStatus(500)
+    });
+});
+
 module.exports = router;

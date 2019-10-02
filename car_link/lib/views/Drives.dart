@@ -1,28 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:car_link/classes/Ride.dart';
 import 'package:car_link/views/DriveDetail.dart';
-import 'package:car_link/views/GasMoneyRoute.dart';
 import 'package:flutter/material.dart';
-
-// stores ExpansionPanel state information
-class Item {
-  Item({
-    this.expandedValue,
-    this.headerValue,
-    this.isExpanded = false,
-  });
-
-  String expandedValue;
-  String headerValue;
-  bool isExpanded;
-}
-
-List<Item> generateItems(int numberOfItems) {
-  return List.generate(numberOfItems, (int index) {
-    return Item(
-      headerValue: '08:2$index - 08:4$index',
-      expandedValue: '27/09/2019',
-    );
-  });
-}
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class RidesRoute extends StatefulWidget {
   RidesRoute({Key key}) : super(key: key);
@@ -32,15 +16,33 @@ class RidesRoute extends StatefulWidget {
 }
 
 class RidesRouteState extends State<RidesRoute> {
-  List<Item> _data = generateItems(8);
+  List<Ride> _data = List<Ride>();
+
+  void _getRides() {
+    Webservice().load(Ride.all).then((rides) => {
+          setState(() => {_data = rides})
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        child: _buildPanel(),
-      ),
-    );
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("🚗🏁"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                _getRides();
+              },
+            )
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            child: _buildPanel(),
+          ),
+        ));
   }
 
   Widget _buildPanel() {
@@ -50,14 +52,14 @@ class RidesRouteState extends State<RidesRoute> {
           _data[index].isExpanded = !isExpanded;
         });
       },
-      children: _data.map<ExpansionPanel>((Item item) {
+      children: _data.map<ExpansionPanel>((Ride item) {
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
               leading: Icon(Icons.directions_car),
-              title: Text(item.headerValue),
-              subtitle: Text(item.expandedValue),
+              title: Text(GetTime(item.driveStart) + " - " + GetTime(item.driveEnd)),
+              subtitle: Text(GetDate(item.driveStart)),
             );
           },
           body: Center(
@@ -98,14 +100,7 @@ class RidesRouteState extends State<RidesRoute> {
                                 ),
                                 label: Text('10 L'),
                               ),
-                              ActionChip(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => GasMoneyRoute()),
-                                  );
-                                },
+                              Chip(
                                 avatar: CircleAvatar(
                                   child: Icon(Icons.monetization_on),
                                   backgroundColor: Colors.transparent,
@@ -140,4 +135,42 @@ class RidesRouteState extends State<RidesRoute> {
       }).toList(),
     );
   }
+}
+
+class Resource<T> {
+  final String url;
+  T Function(Response response) parse;
+
+  Resource({this.url, this.parse});
+}
+
+class Webservice {
+  Future<T> load<T>(Resource<T> resource) async {
+    var params = {
+      "username": "wilson",
+      "pinCode": "0000",
+      "id": "816a78d0-e54a-11e9-a60c-2be73a5e0663"
+    };
+    final response = await http.post("http://uber2.nl:3000/api/getDrives",
+        body: json.encode(params),
+        headers: {HttpHeaders.contentTypeHeader: "application/json"});
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      return resource.parse(response);
+    } else {
+      throw Exception('Failed to load data!');
+    }
+  }
+}
+
+String GetTime(int timestamp) {
+  DateTime date = new DateTime.fromMillisecondsSinceEpoch(timestamp);
+  return date.hour.toString() + ":" + date.minute.toString();
+}
+
+
+String GetDate(int timestamp) {
+  DateTime date = new DateTime.fromMillisecondsSinceEpoch(timestamp);
+  return date.day.toString() + "/" + date.month.toString() + "/" + date.year.toString();
 }

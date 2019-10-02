@@ -3,6 +3,7 @@ import json
 import options
 import sprints
 import connection
+from utils import secondsToMs
 
 driveStart = 0
 driveEnd = 0
@@ -11,14 +12,14 @@ def startDrive():
 
     global driveStart
 
-    driveStart = str(datetime.timestamp(datetime.now()) * 1000).replace('.', '')
+    driveStart = secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))
     print("Started drive")
 
 def endDrive():
 
     global driveEnd
 
-    driveEnd = str(datetime.timestamp(datetime.now()) * 1000).replace('.', '')
+    driveEnd = secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))
 
     saveDrive()
     

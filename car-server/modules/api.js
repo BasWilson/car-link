@@ -10,6 +10,7 @@ const linkCarProperties = ['linkedUser', 'pinCode', 'username'];
 const updateCarProperties = ['name', 'color', 'licensePlate', 'id', 'pinCode', 'username'];
 const createUserProperties = ['username', 'pinCode'];
 const authenticateProperties = ['username', 'pinCode'];
+const getDrivesProperties = ['username', 'pinCode', 'id']; // username, pin, car id
 const saveDriveProperties = ['username', 'pinCode', 'sprints', 'driveStart', 'driveEnd']; // Car id, pinCode, sprints array
 
 function createUser(body) {
@@ -185,10 +186,10 @@ function saveDrive(body) {
                 driveEnd: body['driveEnd'],
             });
 
-
             User.findOne({ username: body['username'] }).then((foundUser) => {
                 Car.findOne({ linkedUser: foundUser.id }).then((foundCar) => {
                     if (foundCar) {
+                        newDrive['linkedCar'] = foundCar.id;
                         authenticate(body).then((authenticated) => {
                             if (authenticated) {
                                 newDrive.save().then(() => {
@@ -215,9 +216,55 @@ function saveDrive(body) {
     });
 }
 
+function getDrives(body) {
+    return new Promise(resolve => {
+
+        try {
+            let validationCount = getDrivesProperties.length;
+
+            getDrivesProperties.forEach(key => {
+                if (typeof body[key] === 'undefined')
+                    validationCount--;
+            });
+
+            // Check if the user's input was valid
+            if (validationCount != getDrivesProperties.length)
+                return resolve(err('en', 'error_invalid_input'))
+
+            authenticate(body).then((authenticated) => {
+                if (authenticated) {
+                    Car.findOne({id: body['id']}).then((foundCar) => {
+                        if (foundCar) {
+                            Drive.find({linkedCar: foundCar.id}).then((drives) => {
+                                if (drives)
+                                    return resolve(drives)
+                                else
+                                    return resolve(err('en', 'error_car_404'))
+                            }).catch(() => {
+                                return resolve(err('en', 'error_car_404'))
+                            })
+                        } else {
+                            return resolve(err('en', 'error_car_404'))
+                        }
+                    }).catch(() => {
+                        return resolve(err('en', 'error_car_404'))
+                    })
+                }
+            }).catch(() => {
+                return resolve(err('en', 'error_wrong_pincode'));
+            })          
+
+        } catch (error) {
+            return resolve(err('en', 'error_unknown'))
+        }
+
+    });
+}
+
 module.exports = {
     linkCar: linkCar,
     createUser: createUser,
     updateCar: updateCar,
     saveDrive: saveDrive,
+    getDrives: getDrives
 }

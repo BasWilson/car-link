@@ -12,13 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("🚗🏁"),
-        ),
-        body: RidesRoute(),
-      ),
+      home: RidesRoute()
     );
   }
 }
-
