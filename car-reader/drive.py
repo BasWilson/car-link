@@ -34,6 +34,6 @@ def saveDrive():
         "sprints": sprints.times
     }
 
-    saved = connection.post('/saveDrive', data)
-
-    print('saved', saved)
+    if options.saveToDB:
+        saved = connection.post('/saveDrive', data)
+        print('saved', saved)

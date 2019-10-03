@@ -4,6 +4,7 @@ from options import mockMode
 from connection import post
 from sprints import measureSprint
 import drive
+import speedo
 
 # Set true if not connected to car
 running = False
@@ -32,5 +33,5 @@ if running:
     drive.startDrive()
 
 while running == True:
-    time.sleep( .8 )
+    time.sleep( .1 )
     nullToHundred = measureSprint(connection)

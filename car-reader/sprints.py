@@ -2,7 +2,7 @@ import obd
 import drive
 from options import mockMode
 from options import maxSprintTime
-from options import speedMeasureSteps
+from options import sprintMeasureSteps
 from datetime import datetime
 from utils import secondsToMs
 
@@ -27,7 +27,7 @@ def measureSprint(connection):
     global times
     global currentTime
     global previousSpeed
-
+    
     # time it took 0 - 100
     nullToHundred = 0
 
@@ -39,10 +39,8 @@ def measureSprint(connection):
         response = connection.query(cmd)
 
         # turn the query response into a float
-        print(type(response.value))
-        # speed = float(response.value)  
+        speed = float(str(response.value).replace('kph', ''))
         print(speed)
-
     else:
         speed = mockspeed
         mockspeed += 10
@@ -55,7 +53,7 @@ def measureSprint(connection):
             currentTime[secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))] = 0
 
         speedDif = speed - previousSpeed
-        if speedDif > speedMeasureSteps:
+        if speedDif > sprintMeasureSteps:
             # Add the time for the current speed if we have made enough speed differnce
             currentTime[secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))] = speed
             previousSpeed = speed
