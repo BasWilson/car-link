@@ -39,7 +39,8 @@ def measureSprint(connection):
         response = connection.query(cmd)
 
         # turn the query response into a float
-        speed = float(response.value)  
+        print(type(response.value))
+        # speed = float(response.value)  
         print(speed)
 
     else:

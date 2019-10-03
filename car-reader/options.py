@@ -1,4 +1,4 @@
-mockMode = False # Set to true if testing out without car connection
+mockMode = True # Set to true if testing out without car connection
 maxSprintTime = 15 # Maxiumum amount of seconds it may take to do a 0 - 100 sprint
 speedMeasureSteps = 5 # Steps at wich speed will be measured for the sprints
 carLinkUrl = 'http://uber2.nl:3000/api'
