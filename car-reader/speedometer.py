@@ -15,8 +15,11 @@ class Speedometer:
 
         # create the display surface object 
         # of specific dimension..e(X, Y). 
-        self.display_surface = pygame.display.set_mode((480, 320))
-        # display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        
+        if options.mockMode:
+            self.display_surface = pygame.display.set_mode((480, 320))
+        else:
+            self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
         # textRect.center = (monitor.current_w // 2, monitor.current_h // 2) 
 
