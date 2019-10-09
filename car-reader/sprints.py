@@ -40,14 +40,12 @@ def measureSprint(connection):
 
         # turn the query response into a float
         speed = float(str(response.value).replace('kph', ''))
-        print(speed)
     else:
         speed = mockspeed
         mockspeed += 10
 
     # Add the current speed to the dictionary with as key the current timestmap
     if speed > 0:
-        print(speed)
         # If no times added to current time, it means we can add the zeroTime to it.
         if len(currentTime) == 0:
             currentTime[secondsToMs(str(datetime.timestamp(datetime.now()) * 1000))] = 0

@@ -4,7 +4,7 @@ from options import mockMode
 from connection import post
 from sprints import measureSprint
 import drive
-import speedo
+import speedometer
 
 # Set true if not connected to car
 running = False
@@ -13,6 +13,8 @@ running = False
 obd.logger.setLevel(obd.logging.DEBUG)
 
 connection = None
+
+speedo = None
 
 # Connect to elm327 plug
 try:
@@ -31,7 +33,8 @@ elif mockMode == True:
 
 if running:
     drive.startDrive()
+    speedo = speedometer.Speedometer()
 
 while running == True:
-    time.sleep( .1 )
-    nullToHundred = measureSprint(connection)
+    speedo.speedoLoop(connection)
+    measureSprint(connection)
